@@ -30,8 +30,9 @@ def main_task(email_sess, email, recv_email):
     available_appointments = set()
     while True:
         date_str =  min_date.strftime('%d-%m-%Y')
+        headers = {"x-cache": "Miss from cloudfront"}
         url = f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=149&date={date_str}"
-        data = requests.get(url)
+        data = requests.get(url, headers=headers)
         data = data.text
         data = json.loads(data)
         center_list = data["centers"]
@@ -55,8 +56,10 @@ def send_mail(appointments, sess, email, recv_email):
 
 def run(email_sess, email, recv_email):
     while True:
+        print("Reading appointments")
         main_task(email_sess, email, recv_email)
-        time.sleep(60*10)
+        print("Finished Reading Appointments")
+        time.sleep(60*3)
 
 if __name__ == "__main__":
     email = sys.argv[1]
