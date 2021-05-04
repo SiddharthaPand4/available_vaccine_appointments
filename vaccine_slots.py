@@ -15,12 +15,10 @@ def check_availability(center_list=[]):
             date_str = session["date"]
             sess_date = datetime.strptime(date_str, '%d-%m-%Y')
             min_age_limit = int(session["min_age_limit"])
-            # print(min_age_limit)
             if min_age_limit == 18:
                 availability = int(session["available_capacity"])
                 vaccine_name = session["vaccine"]
                 if availability > 0:
-                    # print('reached')
                     sess_date_str = sess_date.strftime('%d-%m-%Y')
                     appointment = f"{vaccine_name} available at {hospital} on {sess_date_str}"
                     appointments.add(appointment)
@@ -33,17 +31,15 @@ def main_task(email_sess, email, recv_email):
     while True:
         date_str =  min_date.strftime('%d-%m-%Y')
         url = f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=149&date={date_str}"
-        # print(url)
         data = requests.get(url)
         data = data.text
         data = json.loads(data)
         center_list = data["centers"]
-        # print(center_list)
         if len(center_list) > 0:
             available_appointments = available_appointments | check_availability(center_list)
+        else:
             break
         min_date += timedelta(days = 1)
-    # print(available_appointments)
     if len(available_appointments) > 0:
         send_mail(available_appointments, email_sess, email, recv_email)
 
@@ -52,10 +48,9 @@ def send_mail(appointments, sess, email, recv_email):
     message = ""
     for appointment in appointments:
         message += f"{appointment} \n"
-    # print(message)
-    # print("sendinng mail")
+    print(f"sending mail for {len(appointments)}")
     sess.sendmail(email, recv_email, message)
-    # print("mail sent")
+    print("mail sent")
 
 
 def run(email_sess, email, recv_email):
